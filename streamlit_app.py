@@ -10,7 +10,7 @@ import pandas as pd
 
 # https://stats.stackexchange.com/questions/22347/is-chi-squared-always-a-one-sided-test
 
-st.write("Check the value of difference when chi-squared test would be significant")
+st.write("Check the value of difference when the chi-squared test would be significant")
 
 p_values = []
 differences = []
