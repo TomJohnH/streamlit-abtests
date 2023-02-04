@@ -20,14 +20,14 @@ with st.form("my_form"):
     st.write("Inside the form")
     col1, col2 = st.columns(2)
     with col1:
-        a_click = float(st.text_input("a_click", value=1513))
+        a_click = float(st.text_input("Base # successes", value=1513))
     with col2:
-        a_population = float(st.text_input("a_population", value=15646))
+        a_population = float(st.text_input("Base # trials", value=15646))
     col1, col2 = st.columns(2)
     with col1:
-        b_click_init = float(st.text_input("b_click", value=1553))
+        b_click_init = float(st.text_input("Test # successes", value=1553))
     with col2:
-        b_population = float(st.text_input("b_population", value=15130))
+        b_population = float(st.text_input("Test # trials", value=15130))
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
