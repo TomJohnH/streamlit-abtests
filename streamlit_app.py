@@ -10,14 +10,14 @@ import pandas as pd
 
 # https://stats.stackexchange.com/questions/22347/is-chi-squared-always-a-one-sided-test
 
-st.write("Check the value of difference when the chi-squared test would be significant")
 
 p_values = []
 differences = []
 
+st.subheader("Chi-squared a/b test")
 
 with st.form("my_form"):
-    st.write("Inside the form")
+    st.write("Please provide test results")
     col1, col2 = st.columns(2)
     with col1:
         a_click = float(st.text_input("Base # successes", value=1513))
@@ -32,13 +32,39 @@ with st.form("my_form"):
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
     if submitted:
+        st.write("**Results**")
+        st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
+        st.write(
+            "Test population conversion: " + f"{(b_click_init / b_population):.2%}"
+        )
 
+        # ---- quick test ----
+        a_noclick = a_population - a_click
+        b_click = b_click_init
+        b_noclick = b_population - b_click
+        T = np.array([[a_click, a_noclick], [b_click, b_noclick]])
+        p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
+        if p_val <= 0.05:
+            sig_test = " ...significant!"
+        else:
+            sig_test = " ...not significant!"
+        st.markdown(
+            "<span style='color:green'>Difference: "
+            + f"{(a_click / a_population - b_click_init / b_population):.2%}"
+            + " p-value "
+            + str(f"{p_val:.4f}")
+            + sig_test
+            + "</span>",
+            unsafe_allow_html=True,
+        )
+
+        st.write(
+            "**Check the value of difference when the chi-squared test would be significant**"
+        )
         for i in range(-50, 50):
-            # a_population = 15646
-            # a_click = 1513
+
             a_noclick = a_population - a_click
 
-            # b_population = 15130
             b_click = b_click_init + i
             b_noclick = b_population - b_click
 
@@ -46,12 +72,6 @@ with st.form("my_form"):
 
             p_values.append(scipy.stats.chi2_contingency(T, correction=False)[1])
             differences.append((a_click / a_population - b_click / b_population))
-            # st.write("No of b clicks " + str(b_click))
-            # st.write(
-            #     "p-value of " + f"{scipy.stats.chi2_contingency(T, correction=False)[1]:0.4}"
-            # )
-
-            # st.write(f"{a_click / a_population - b_click / b_population:0.2%}")
 
         df = pd.DataFrame({"Difference": differences, "p-values": p_values})
         df_styled = df.style.format({"Difference": "{:.4%}", "p-values": "{:.4%}"})
