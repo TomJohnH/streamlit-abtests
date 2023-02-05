@@ -3,6 +3,7 @@ import scipy
 from scipy import stats
 import streamlit as st
 import pandas as pd
+import math
 
 # ----- important notes -----
 
@@ -13,6 +14,13 @@ import pandas as pd
 
 p_values = []
 differences = []
+
+
+def z_score(alpha):
+    # Calculate the z-score corresponding to the given significance level
+    z = stats.norm.ppf(1 - alpha / 2)
+
+    return z
 
 
 def diffprop(obs):
@@ -146,4 +154,76 @@ with st.form("my_form"):
         df.Difference = df.Difference * 100
         st.line_chart(df.set_index("Difference"))
 
-        # https://stackoverflow.com/questions/39239087/run-a-chi-square-test-with-observation-and-expectation-counts-and-get-confidence
+        st.subheader("Detectable difference")
+
+        st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
+
+        st.latex(
+            r"""N = \frac{2(z_{\alpha/2}+z_{\beta} )^2 \mu(1-\mu)}{\mu^2 \cdot d^2}"""
+        )
+
+        # power changed to 80%
+
+        # test power - chance to obtain true postive results - finding a difference when it really exists
+        # signifcance level - risk of obtaining false positive results - finding a non existisng difference
+
+        mu = a_click / a_population  # a_click / a_population
+
+        d = math.sqrt(
+            2
+            * (
+                ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
+                * mu
+                * (1 - mu)
+            )
+            / ((mu ** 2) * a_population)
+        )
+
+        st.write(
+            "Detectable difference: "
+            + f"{(d):.2%}"
+            + " i.e. "
+            + f"**{(d*mu):.2%}**"
+            + " percantage points"
+        )
+
+        # test
+
+        # mu = 0.05  # a_click / a_population
+
+        # d = math.sqrt(
+        #     2
+        #     * (
+        #         ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
+        #         * mu
+        #         * (1 - mu)
+        #     )
+        #     / ((mu ** 2) * 547200)
+        # )
+
+        # st.write("Detectable difference: " + f"{(d):.2%}")
+
+
+# here is a code for calculating sample size
+
+# st.latex(r"""N = \frac{2(z_{\alpha/2}+z_{\beta} )^2 \mu(1-\mu)}{\mu^2 \cdot d^2}""")
+
+# mu = 0.05
+# impact = 0.025
+# N = (
+#     2
+#     * (
+#         ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
+#         * mu
+#         * (1 - mu)
+#     )
+#     / ((mu ** 2) * (impact ** 2))
+# )
+# st.write(round(N, 2))
+
+# st.write(round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2))
+
+# st.write(math.sqrt(547200 * ((mu ** 2) * (impact ** 2)) / (2 * mu * (1 - mu))))
+
+# https://blog.allegro.tech/2019/08/ab-testing-calculating-required-sample-size.html
+# https://stackoverflow.com/questions/39239087/run-a-chi-square-test-with-observation-and-expectation-counts-and-get-confidence
