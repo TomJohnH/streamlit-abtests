@@ -111,7 +111,7 @@ with st.form("my_form"):
         st.write(f"Confidence interval left: {diffprop(K)[1][0]:0.4%}")
         st.write(f"Confidence interval right: {diffprop(K)[1][1]:0.4%}")
         st.write(
-            "When confidence interval contains zero test is statistically non-significant"
+            "When confidence interval contains zero, test is statistically non-significant"
         )
 
         ##################################################
