@@ -3,7 +3,6 @@ import scipy
 from scipy import stats
 import streamlit as st
 import pandas as pd
-import plotly
 
 # ----- important notes -----
 
@@ -30,7 +29,9 @@ def diffprop(obs):
     """
     n1, n2 = obs.sum(axis=1)
     prop1 = obs[0, 0] / n1
+    st.write(prop1)
     prop2 = obs[1, 0] / n2
+    st.write(prop2)
     delta = prop1 - prop2
 
     # Wald 95% confidence interval for delta
@@ -122,4 +123,4 @@ with st.form("my_form"):
 
         K = np.array([[a_click, a_noclick], [b_click_init, b_noclick]])
 
-        st.write(diffprop(K))
+        st.write(diffprop(K[::-1]))
