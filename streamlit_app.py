@@ -183,7 +183,7 @@ with st.form("my_form"):
             "Detectable difference: "
             + f"{(d):.2%}"
             + " i.e. "
-            + f"**{(d*mu):.2%}**"
+            + f"**{(d*mu*100):.2}**"
             + " percantage points"
         )
 
