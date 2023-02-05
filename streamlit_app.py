@@ -29,9 +29,7 @@ def diffprop(obs):
     """
     n1, n2 = obs.sum(axis=1)
     prop1 = obs[0, 0] / n1
-    st.write(prop1)
     prop2 = obs[1, 0] / n2
-    st.write(prop2)
     delta = prop1 - prop2
 
     # Wald 95% confidence interval for delta
@@ -63,6 +61,13 @@ with st.form("my_form"):
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
     if submitted:
+
+        ##################################################
+        #
+        #                       RESULTS
+        #
+        ##################################################
+
         st.subheader("**Results**")
         st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
         st.write(
@@ -72,8 +77,9 @@ with st.form("my_form"):
         # ---- quick test ----
         a_noclick = a_population - a_click
         b_click = b_click_init
+        b_noclick_init = b_population - b_click_init
         b_noclick = b_population - b_click
-        T = np.array([[a_click, a_noclick], [b_click, b_noclick]])
+        T = np.array([[a_click, a_noclick], [b_click, b_noclick_init]])
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
         if p_val <= 0.05:
             sig_test = ".<br> P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probabliti reject the hyphotesis that conversions do not differ."
@@ -83,13 +89,26 @@ with st.form("my_form"):
             color = "red"
         st.markdown(
             f"<span style='color:{color}'>Difference: "
-            + f"{(a_click / a_population - b_click_init / b_population):.2%}"
+            + f"{(b_click_init / b_population - a_click / a_population):.2%}"
             + " p-value "
             + str(f"{p_val:.4f}")
             + sig_test
             + "</span>",
             unsafe_allow_html=True,
         )
+
+        K = np.array([[a_click, a_noclick], [b_click_init, b_noclick_init]])
+        K = K[::-1]
+        st.write(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
+        st.write(f"Confidence interval left: {diffprop(K)[1][0]:0.4%}")
+        st.write(f"Confidence interval right: {diffprop(K)[1][1]:0.4%}")
+
+        ##################################################
+        #
+        #               additional information
+        #
+        ##################################################
+
         st.subheader("Additional information")
         st.write(
             "**Check the value of difference when the chi-squared test would be significant**"
@@ -121,6 +140,4 @@ with st.form("my_form"):
         df.Difference = df.Difference * 100
         st.line_chart(df.set_index("Difference"))
 
-        K = np.array([[a_click, a_noclick], [b_click_init, b_noclick]])
-
-        st.write(diffprop(K[::-1]))
+        # https://stackoverflow.com/questions/39239087/run-a-chi-square-test-with-observation-and-expectation-counts-and-get-confidence
