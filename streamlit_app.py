@@ -184,7 +184,7 @@ with st.form("my_form"):
             + f"{(d):.2%}"
             + " i.e. "
             + f"**{(d*mu*100):.2}**"
-            + " percantage points"
+            + " percentage points"
         )
 
         # test
