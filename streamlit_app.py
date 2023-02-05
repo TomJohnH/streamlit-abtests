@@ -102,6 +102,9 @@ with st.form("my_form"):
         st.write(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
         st.write(f"Confidence interval left: {diffprop(K)[1][0]:0.4%}")
         st.write(f"Confidence interval right: {diffprop(K)[1][1]:0.4%}")
+        st.write(
+            "When confidence interval contains zero test is statistically non-significant"
+        )
 
         ##################################################
         #
@@ -111,7 +114,7 @@ with st.form("my_form"):
 
         st.subheader("Additional information")
         st.write(
-            "**Check the value of difference when the chi-squared test would be significant**"
+            "**Check the value of difference when the chi-squared test would be significant.**"
         )
         for i in range(-50, 50):
 
@@ -123,7 +126,7 @@ with st.form("my_form"):
             T = np.array([[a_click, a_noclick], [b_click, b_noclick]])
 
             p_values.append(scipy.stats.chi2_contingency(T, correction=False)[1])
-            differences.append((a_click / a_population - b_click / b_population))
+            differences.append((b_click / b_population - a_click / a_population))
 
         df = pd.DataFrame({"Difference": differences, "p-values": p_values})
         df_styled = df.style.format({"Difference": "{:.4%}", "p-values": "{:.4%}"})
