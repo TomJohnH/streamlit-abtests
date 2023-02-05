@@ -172,7 +172,7 @@ with st.form("my_form"):
         d = math.sqrt(
             2
             * (
-                ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
+                ((round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2)
                 * mu
                 * (1 - mu)
             )
@@ -188,6 +188,8 @@ with st.form("my_form"):
         )
 
         # test
+
+        # power 0.85
 
         # mu = 0.05  # a_click / a_population
 
