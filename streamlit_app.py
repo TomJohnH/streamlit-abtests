@@ -114,6 +114,9 @@ with st.form("my_form"):
 
         st.subheader("Additional information")
         st.write(
+            "Please be very carefull before using below to make any decisions. Explanation why: https://www.evanmiller.org/how-not-to-run-an-ab-test.html"
+        )
+        st.write(
             "**Check the value of difference when the chi-squared test would be significant.**"
         )
         for i in range(-50, 50):
