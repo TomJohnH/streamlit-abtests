@@ -4,6 +4,7 @@ from scipy import stats
 import streamlit as st
 import pandas as pd
 import math
+import pyperclip
 
 # ----- important notes -----
 
@@ -77,6 +78,7 @@ with st.form("my_form"):
         ##################################################
 
         st.subheader("**Results**")
+        st.write("**Conversions**")
         st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
         st.write(
             "Test population conversion: " + f"{(b_click_init / b_population):.2%}"
@@ -107,9 +109,17 @@ with st.form("my_form"):
 
         K = np.array([[a_click, a_noclick], [b_click_init, b_noclick_init]])
         K = K[::-1]
-        st.write(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
-        st.write(f"Confidence interval left: {diffprop(K)[1][0]:0.4%}")
-        st.write(f"Confidence interval right: {diffprop(K)[1][1]:0.4%}")
+        st.write("**Confidence interval**")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"Confidence interval left:")
+            st.code(f"{diffprop(K)[1][0]:0.4%}", None)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"Confidence interval right:")
+            st.code(f"{diffprop(K)[1][1]:0.4%}", None)
+        st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
         st.write(
             "When confidence interval contains zero, test is statistically non-significant"
         )
