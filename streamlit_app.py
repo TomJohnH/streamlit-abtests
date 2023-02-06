@@ -241,7 +241,14 @@ with st.form("my_form"):
         st.latex(
             r"""N = \frac{2(z_{\alpha/2}+z_{\beta} )^2 \mu(1-\mu)}{\mu^2 \cdot d^2}"""
         )
-
+        st.write(
+            "Detectable difference based on sample size: "
+            + f"{(detect(a_click,a_population)[0]):.2%}"
+            + " i.e. "
+            + f"**{(detect(a_click,a_population)[0]*detect(a_click,a_population)[1]*100):.2}**"
+            + " percentage points"
+        )
+        st.caption("Significance level: 0.05, test power: 0.8")
         # test
 
         # power 0.85
