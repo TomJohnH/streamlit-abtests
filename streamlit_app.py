@@ -267,6 +267,34 @@ with st.form("my_form"):
 
         # st.write("Detectable difference: " + f"{(d):.2%}")
 
+import streamlit.components.v1 as components
+
+# Store the initial value of widgets in session state
+if "visibility" not in st.session_state:
+    st.session_state.visibility = "visible"
+    st.session_state.disabled = False
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.checkbox("Disable selectbox widget", key="disabled")
+    st.radio(
+        "Set selectbox label visibility 👉",
+        key="visibility",
+        options=["visible", "hidden", "collapsed"],
+    )
+
+
+# components.html(
+#     """
+# <script>
+# const input = window.parent.document.querySelector("input");
+# input.setAttribute("inputmode", "none");
+# console.log(input.getAttribute("inputmode"))
+# console.log("test")
+# </script>"""
+# )
+
 
 # here is a code for calculating sample size
 
