@@ -186,7 +186,7 @@ with st.form("my_form"):
             + f"**{(d*mu*100):.2}**"
             + " percentage points"
         )
-
+        st.caption("Significance level: 0.05, test power: 0.8")
         # test
 
         # power 0.85
