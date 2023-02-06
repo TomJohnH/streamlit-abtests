@@ -289,9 +289,10 @@ components.html(
     """
 <script>
 const input = window.parent.document.querySelectorAll('div[data-baseweb="select"]');
-input[0].setAttribute("inputmode", "none");
-console.log(input[0].getAttribute("inputmode"))
-console.log("test")
+input.blur()
+# input[0].setAttribute("inputmode", "none");
+# console.log(input[0].getAttribute("inputmode"))
+# console.log("test")
 </script>"""
 )
 
