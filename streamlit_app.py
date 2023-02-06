@@ -24,6 +24,29 @@ def z_score(alpha):
     return z
 
 
+def detect(a_click, a_population):
+
+    # https://blog.allegro.tech/2019/08/ab-testing-calculating-required-sample-size.html
+
+    # power changed to 80%
+    # test power - chance to obtain true postive results - finding a difference when it really exists
+    # signifcance level - risk of obtaining false positive results - finding a non existisng difference
+
+    mu = a_click / a_population  # a_click / a_population
+
+    d = math.sqrt(
+        2
+        * (
+            ((round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2)
+            * mu
+            * (1 - mu)
+        )
+        / ((mu ** 2) * a_population)
+    )
+
+    return d, mu
+
+
 def diffprop(obs):
     """
     `obs` must be a 2x2 numpy array.
@@ -78,39 +101,86 @@ with st.form("my_form"):
         ##################################################
 
         st.subheader("**Results**")
-        st.write("**Conversions**")
-        st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
-        st.write(
-            "Test population conversion: " + f"{(b_click_init / b_population):.2%}"
-        )
 
-        # ---- quick test ----
+        # ----- conversion results -----
+
+        st.write("**Conversions**")
+
+        st.write("Base population conversion:")
+        col1, col2 = st.columns(2)
+
+        # base population conversion
+
+        with col1:
+            st.code(f"{(a_click / a_population):.2%}", None)
+        with col2:
+            st.write(
+                "Detectable difference based on sample size: "
+                + f"{(detect(a_click,a_population)[0]):.2%}"
+                + " i.e. "
+                + f"**{(detect(a_click,a_population)[0]*detect(a_click,a_population)[1]*100):.2}**"
+                + " percentage points"
+            )
+            st.caption("Significance level: 0.05, test power: 0.8")
+
+        # test population conversion
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("Test population conversion:")
+            st.code(f"{(b_click_init / b_population):.2%}", None)
+
+        # difference
+        st.write("Difference:")
+
+        col1, col2 = st.columns(2)
+        with col1:
+
+            st.code(f"{(b_click_init / b_population-a_click / a_population):.2%}", None)
+        with col2:
+            if (b_click_init / b_population - a_click / a_population) > 0:
+                st.markdown(
+                    f"<span style='color:green'>Positive difference</span> ",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    f"<span style='color:red'>Possitive difference</span> ",
+                    unsafe_allow_html=True,
+                )
+
+        # ----- p-value calculation -----
+
         a_noclick = a_population - a_click
         b_click = b_click_init
         b_noclick_init = b_population - b_click_init
         b_noclick = b_population - b_click
         T = np.array([[a_click, a_noclick], [b_click, b_noclick_init]])
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
+
         if p_val <= 0.05:
-            sig_test = ".<br> P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probablity reject the hyphotesis that conversions do not differ."
+            sig_test = "P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probablity reject the hyphotesis that conversions do not differ."
             color = "green"
         else:
-            sig_test = ".<br> P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablity reject the hyphotesis that conversions do not differ."
+            sig_test = "P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablity reject the hyphotesis that conversions do not differ."
             color = "red"
-        st.markdown(
-            f"<span style='color:{color}'>Difference: "
-            + f"{(b_click_init / b_population - a_click / a_population):.2%}"
-            + " p-value "
-            + str(f"{p_val:.4f}")
-            + sig_test
-            + "</span>",
-            unsafe_allow_html=True,
-        )
 
         K = np.array([[a_click, a_noclick], [b_click_init, b_noclick_init]])
         K = K[::-1]
-        st.write("**Confidence interval**")
 
+        # ----- p-value -----
+
+        st.write("**P-value**")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.code(f"{p_val:.4f}", None)
+        with col2:
+            st.markdown(
+                f"<span style='color:{color}'>{sig_test}</span>", unsafe_allow_html=True
+            )
+
+        # ----- Confidence interval -----
+
+        st.write("**Confidence interval**")
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"Confidence interval left:")
@@ -172,31 +242,6 @@ with st.form("my_form"):
             r"""N = \frac{2(z_{\alpha/2}+z_{\beta} )^2 \mu(1-\mu)}{\mu^2 \cdot d^2}"""
         )
 
-        # power changed to 80%
-
-        # test power - chance to obtain true postive results - finding a difference when it really exists
-        # signifcance level - risk of obtaining false positive results - finding a non existisng difference
-
-        mu = a_click / a_population  # a_click / a_population
-
-        d = math.sqrt(
-            2
-            * (
-                ((round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2)
-                * mu
-                * (1 - mu)
-            )
-            / ((mu ** 2) * a_population)
-        )
-
-        st.write(
-            "Detectable difference: "
-            + f"{(d):.2%}"
-            + " i.e. "
-            + f"**{(d*mu*100):.2}**"
-            + " percentage points"
-        )
-        st.caption("Significance level: 0.05, test power: 0.8")
         # test
 
         # power 0.85
