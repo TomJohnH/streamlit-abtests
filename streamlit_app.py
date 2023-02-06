@@ -137,14 +137,14 @@ with st.form("my_form"):
 
             st.code(f"{(b_click_init / b_population-a_click / a_population):.2%}", None)
         with col2:
-            if (b_click_init / b_population - a_click / a_population) > 0:
+            if (b_click_init / b_population - a_click / a_population) >= 0:
                 st.markdown(
                     f"<span style='color:green'>Positive difference</span> ",
                     unsafe_allow_html=True,
                 )
             else:
                 st.markdown(
-                    f"<span style='color:red'>Possitive difference</span> ",
+                    f"<span style='color:red'>Negative difference</span> ",
                     unsafe_allow_html=True,
                 )
 
