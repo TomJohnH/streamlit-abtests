@@ -285,15 +285,15 @@ with col2:
     )
 
 
-# components.html(
-#     """
-# <script>
-# const input = window.parent.document.querySelector("input");
-# input.setAttribute("inputmode", "none");
-# console.log(input.getAttribute("inputmode"))
-# console.log("test")
-# </script>"""
-# )
+components.html(
+    """
+<script>
+const input = window.parent.document.querySelector("input");
+input.setAttribute("inputmode", "none");
+console.log(input.getAttribute("inputmode"))
+console.log("test")
+</script>"""
+)
 
 
 # here is a code for calculating sample size
