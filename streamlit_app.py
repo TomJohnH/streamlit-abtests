@@ -288,9 +288,9 @@ with col2:
 components.html(
     """
 <script>
-const input = window.parent.document.querySelector("input");
-input.setAttribute("inputmode", "none");
-console.log(input.getAttribute("inputmode"))
+const input = window.parent.document.querySelectorAll('div[data-baseweb="select"]');
+input[0].setAttribute("inputmode", "none");
+console.log(input[0].getAttribute("inputmode"))
 console.log("test")
 </script>"""
 )
