@@ -289,7 +289,9 @@ components.html(
     """
 <script>
 const input = window.parent.document.querySelectorAll('div[data-baseweb="select"]');
-input.blur()
+  setTimeout(() => {
+    input[0].blur();
+  }, 300);
 
 </script>"""
 )
