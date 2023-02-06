@@ -289,9 +289,12 @@ components.html(
     """
 <script>
 const input = window.parent.document.querySelectorAll('div[data-baseweb="select"]');
-  setTimeout(() => {
-    input[0].blur();
-  }, 300);
+input.forEach(input => {
+    input.addEventListener('focusin', function(event) {
+        input.blur();
+        
+    });
+    });
 
 </script>"""
 )
