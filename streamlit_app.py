@@ -267,38 +267,6 @@ with st.form("my_form"):
 
         # st.write("Detectable difference: " + f"{(d):.2%}")
 
-import streamlit.components.v1 as components
-
-# Store the initial value of widgets in session state
-if "visibility" not in st.session_state:
-    st.session_state.visibility = "visible"
-    st.session_state.disabled = False
-
-col1, col2 = st.columns(2)
-
-with col2:
-    option = st.selectbox(
-        "How would you like to be contacted?",
-        ("Email", "Home phone", "Mobile phone"),
-        label_visibility=st.session_state.visibility,
-        disabled=st.session_state.disabled,
-    )
-
-
-components.html(
-    """
-<script>
-const input = window.parent.document.querySelectorAll('div[data-baseweb="select"]');
-input.forEach(input => {
-    input.addEventListener('focusin', function(event) {
-        input.blur();
-        
-    });
-    });
-
-</script>"""
-)
-
 
 # here is a code for calculating sample size
 
