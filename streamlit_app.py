@@ -90,10 +90,10 @@ with st.form("my_form"):
         T = np.array([[a_click, a_noclick], [b_click, b_noclick_init]])
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
         if p_val <= 0.05:
-            sig_test = ".<br> P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probabliti reject the hyphotesis that conversions do not differ."
+            sig_test = ".<br> P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probablity reject the hyphotesis that conversions do not differ."
             color = "green"
         else:
-            sig_test = ".<br> P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablitiy reject the hyphotesis that conversions do not differ."
+            sig_test = ".<br> P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablity reject the hyphotesis that conversions do not differ."
             color = "red"
         st.markdown(
             f"<span style='color:{color}'>Difference: "
