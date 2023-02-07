@@ -6,15 +6,35 @@ import pandas as pd
 import math
 import pyperclip
 
-# ----- important notes -----
+##################################################
+#
+#                Variables initiation
+#
+##################################################
 
-# chi-squared is essentially always a one-sided test
-
-# https://stats.stackexchange.com/questions/22347/is-chi-squared-always-a-one-sided-test
-
+# ---- lists ----
 
 p_values = []
 differences = []
+
+# ---- query params from url ----
+
+if st.experimental_get_query_params():
+    a = st.experimental_get_query_params()["a"]
+    a_p = st.experimental_get_query_params()["a_p"]
+    b = st.experimental_get_query_params()["b"]
+    b_p = st.experimental_get_query_params()["b_p"]
+else:
+    a = 1513
+    a_p = 15646
+    b = 1553
+    b_p = 15130
+
+##################################################
+#
+#                functions declaration
+#
+##################################################
 
 
 def z_score(alpha):
@@ -75,28 +95,40 @@ def diffprop(obs):
     return delta, ci, corrected_ci
 
 
+##################################################
+#
+#            main application front-end
+#
+##################################################
+
 st.subheader("Chi-squared a/b test")
 
 with st.form("my_form"):
     st.subheader("Please provide test results")
     col1, col2 = st.columns(2)
     with col1:
-        a_click = float(st.text_input("Base population # successes", value=1513))
+        a_click = float(st.text_input("Base population # successes", value=a))
     with col2:
-        a_population = float(st.text_input("Base population # trials", value=15646))
+        a_population = float(st.text_input("Base population # trials", value=a_p))
     col1, col2 = st.columns(2)
     with col1:
-        b_click_init = float(st.text_input("Test population # successes", value=1553))
+        b_click_init = float(st.text_input("Test population # successes", value=b))
     with col2:
-        b_population = float(st.text_input("Test population # trials", value=15130))
+        b_population = float(st.text_input("Test population # trials", value=b_p))
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
+    st.write("Share results")
     if submitted:
+
+        st.code(
+            f"https://chisquared.streamlit.app?a={a_click}&a_p={a_population}&b={b_click_init}&b_p={b_population}",
+            None,
+        )
 
         ##################################################
         #
-        #                       RESULTS
+        #                     RESULTS
         #
         ##################################################
 
