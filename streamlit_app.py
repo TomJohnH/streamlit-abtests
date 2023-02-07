@@ -16,6 +16,7 @@ import pyperclip
 
 p_values = []
 differences = []
+obs_diff = []
 
 # ---- query params from url ----
 
@@ -119,7 +120,7 @@ with st.form("my_form"):
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
     st.write("Share results")
-    if submitted:
+    if submitted or st.experimental_get_query_params():
 
         st.code(
             f"https://chisquared.streamlit.app?a={a_click}&a_p={a_population}&b={b_click_init}&b_p={b_population}",
@@ -234,7 +235,7 @@ with st.form("my_form"):
 
         st.subheader("Additional information")
         st.write(
-            "Please be very carefull before using below to make any decisions. Explanation why: https://www.evanmiller.org/how-not-to-run-an-ab-test.html"
+            "Please exercise extreme caution before making any decisions using the tools listed below. Explanation why: https://www.evanmiller.org/how-not-to-run-an-ab-test.html"
         )
         st.write(
             "**Check the value of difference when the chi-squared test would be significant.**"
@@ -250,21 +251,40 @@ with st.form("my_form"):
 
             p_values.append(scipy.stats.chi2_contingency(T, correction=False)[1])
             differences.append((b_click / b_population - a_click / a_population))
+            obs_diff.append(i * (b_click_init / 1000))
 
-        df = pd.DataFrame({"Difference": differences, "p-values": p_values})
-        df_styled = df.style.format({"Difference": "{:.4%}", "p-values": "{:.4%}"})
+        df = pd.DataFrame(
+            {
+                "Difference": differences,
+                "P-values": p_values,
+                "Success no": obs_diff,
+            }
+        )
+        df_styled = df.style.format(
+            {
+                "Difference": "{:.4%}",
+                "P-values": "{:.4%}",
+                "Success no": "{:.0f}",
+            }
+        )
         st.dataframe(df_styled)
 
         st.write("**Closer look to the significance border**")
 
-        df2 = df[df["p-values"] > 0.045]
-        df2 = df2[df2["p-values"] < 0.055]
-        df2_styled = df2.style.format({"Difference": "{:.4%}", "p-values": "{:.4%}"})
+        df2 = df[df["P-values"] > 0.045]
+        df2 = df2[df2["P-values"] < 0.055]
+        df2_styled = df2.style.format(
+            {
+                "Difference": "{:.4%}",
+                "P-values": "{:.4%}",
+                "Success no": "{:.0f}",
+            }
+        )
         st.dataframe(df2_styled)
 
         st.write("**P-value (y-axis) vs \% diffrence (x-axis) chart**")
         df.Difference = df.Difference * 100
-        st.line_chart(df.set_index("Difference"))
+        st.line_chart(df[["Difference", "P-values"]].set_index("Difference"))
 
         st.subheader("Detectable difference")
 
