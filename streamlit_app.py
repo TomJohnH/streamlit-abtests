@@ -249,6 +249,21 @@ with st.form("my_form"):
             + " percentage points"
         )
         st.caption("Significance level: 0.05, test power: 0.8")
+
+        st.subheader("Comments")
+        st.write(
+            """**Statistical significance** refers to the likelihood that a result from a statistical test is due to chance. 
+        <p>It is often expressed as a probability value, such as 0.05, which represents the threshold for declaring a result as significant. 
+        If the probability of obtaining the observed result by chance is less than the significance level, the result is considered statistically significant. 
+        </p>
+        <p> **Statistical test power**, on the other hand, is a measure of the ability of a statistical test to detect a true difference or effect when it exists. 
+        It is defined as the probability of correctly rejecting the null hypothesis when the alternative hypothesis is true. The power of a test depends on the sample size, the significance level, and the effect size, among other factors.
+        </p>
+        <p> In summary, statistical significance addresses the question of whether the observed result is likely due to chance, 
+        while statistical test power addresses the question of whether the test is capable of detecting a true effect when it exists.
+        </p>""",
+            unsafe_allow_html=True,
+        )
         # test
 
         # power 0.85
