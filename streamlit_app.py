@@ -107,14 +107,14 @@ with st.form("my_form"):
     st.subheader("Please provide test results")
     col1, col2 = st.columns(2)
     with col1:
-        a_click = float(st.text_input("Base population # successes", value=a))
+        a_click = int(st.text_input("Base population # successes", value=a))
     with col2:
-        a_population = float(st.text_input("Base population # trials", value=a_p))
+        a_population = int(st.text_input("Base population # trials", value=a_p))
     col1, col2 = st.columns(2)
     with col1:
-        b_click_init = float(st.text_input("Test population # successes", value=b))
+        b_click_init = int(st.text_input("Test population # successes", value=b))
     with col2:
-        b_population = float(st.text_input("Test population # trials", value=b_p))
+        b_population = int(st.text_input("Test population # trials", value=b_p))
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
