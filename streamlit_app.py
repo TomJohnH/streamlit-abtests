@@ -20,10 +20,10 @@ differences = []
 # ---- query params from url ----
 
 if st.experimental_get_query_params():
-    a = st.experimental_get_query_params()["a"]
-    a_p = st.experimental_get_query_params()["a_p"]
-    b = st.experimental_get_query_params()["b"]
-    b_p = st.experimental_get_query_params()["b_p"]
+    a = st.experimental_get_query_params()["a"][0]
+    a_p = st.experimental_get_query_params()["a_p"][0]
+    b = st.experimental_get_query_params()["b"][0]
+    b_p = st.experimental_get_query_params()["b_p"][0]
 else:
     a = 1513
     a_p = 15646
