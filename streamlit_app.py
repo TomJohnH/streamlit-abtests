@@ -58,7 +58,9 @@ def detect(a_click, a_population):
     d = math.sqrt(
         2
         * (
-            ((round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2)
+            (
+                (round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2
+            )  # here we are using *2 due to definition of z_score
             * mu
             * (1 - mu)
         )
@@ -106,6 +108,9 @@ st.subheader("Chi-squared a/b test")
 
 with st.form("my_form"):
     st.subheader("Please provide test results")
+
+    # input textboxes, may be pre-filled
+
     col1, col2 = st.columns(2)
     with col1:
         a_click = int(st.text_input("Base population # successes", value=a))
@@ -117,11 +122,13 @@ with st.form("my_form"):
     with col2:
         b_population = int(st.text_input("Test population # trials", value=b_p))
 
-    # Every form must have a submit button.
+    # Every form must have a submit button :-)
     submitted = st.form_submit_button("Submit")
-    st.write("Share results")
+
+    # after submit --->
     if submitted or st.experimental_get_query_params():
 
+        st.write("Share results")
         st.code(
             f"https://chisquared.streamlit.app?a={a_click}&a_p={a_population}&b={b_click_init}&b_p={b_population}",
             None,
@@ -148,11 +155,11 @@ with st.form("my_form"):
             st.code(f"{(a_click / a_population):.2%}", None)
         with col2:
             st.write(
-                "Detectable difference based on sample size: "
+                "Minimum Detectable Effect (MDE) based on sample size: "
                 + f"{(detect(a_click,a_population)[0]):.2%}"
                 + " i.e. "
                 + f"**{(detect(a_click,a_population)[0]*detect(a_click,a_population)[1]*100):.2}**"
-                + " percentage points"
+                + " percentage points. If there is an effect you will detect MDE 80\% of the time with this sample."
             )
             st.caption("Significance level: 0.05, test power: 0.8")
 
