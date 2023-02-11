@@ -14,9 +14,12 @@ import pyperclip
 
 # ---- lists ----
 
-p_values = []
+
 differences = []
+MDE_beh = []
 obs_diff = []
+p_values = []
+
 
 # ---- query params from url ----
 
@@ -45,7 +48,7 @@ def z_score(alpha):
     return z
 
 
-def detect(a_click, a_population):
+def detect(success, population):
 
     # https://blog.allegro.tech/2019/08/ab-testing-calculating-required-sample-size.html
 
@@ -53,9 +56,11 @@ def detect(a_click, a_population):
     # test power - chance to obtain true postive results - finding a difference when it really exists
     # signifcance level - risk of obtaining false positive results - finding a non existisng difference
 
-    mu = a_click / a_population  # a_click / a_population
+    # base conversion rate
+    mu = success / population
 
-    d = math.sqrt(
+    # Minimum Detactable Effect
+    MDE = math.sqrt(
         2
         * (
             (
@@ -64,10 +69,10 @@ def detect(a_click, a_population):
             * mu
             * (1 - mu)
         )
-        / ((mu ** 2) * a_population)
+        / ((mu ** 2) * population)
     )
 
-    return d, mu
+    return MDE, mu
 
 
 def diffprop(obs):
@@ -113,12 +118,12 @@ with st.form("my_form"):
 
     col1, col2 = st.columns(2)
     with col1:
-        a_click = int(st.text_input("Base population # successes", value=a))
+        a_success = int(st.text_input("Base population # successes", value=a))
     with col2:
         a_population = int(st.text_input("Base population # trials", value=a_p))
     col1, col2 = st.columns(2)
     with col1:
-        b_click_init = int(st.text_input("Test population # successes", value=b))
+        b_success_init = int(st.text_input("Test population # successes", value=b))
     with col2:
         b_population = int(st.text_input("Test population # trials", value=b_p))
 
@@ -130,7 +135,7 @@ with st.form("my_form"):
 
         st.write("Share results")
         st.code(
-            f"https://chisquared.streamlit.app?a={a_click}&a_p={a_population}&b={b_click_init}&b_p={b_population}",
+            f"https://chisquared.streamlit.app?a={a_success}&a_p={a_population}&b={b_success_init}&b_p={b_population}",
             None,
         )
 
@@ -152,13 +157,13 @@ with st.form("my_form"):
         # base population conversion
 
         with col1:
-            st.code(f"{(a_click / a_population):.2%}", None)
+            st.code(f"{(a_success / a_population):.2%}", None)
         with col2:
             st.write(
                 "Minimum Detectable Effect (MDE) based on sample size: "
-                + f"{(detect(a_click,a_population)[0]):.2%}"
+                + f"{(detect(a_success,a_population)[0]):.2%}"
                 + " i.e. "
-                + f"**{(detect(a_click,a_population)[0]*detect(a_click,a_population)[1]*100):.2}**"
+                + f"**{(detect(a_success,a_population)[0]*detect(a_success,a_population)[1]*100):.2}**"
                 + " percentage points. If there is an effect you will detect MDE 80\% of the time with this sample."
             )
             st.caption("Significance level: 0.05, test power: 0.8")
@@ -167,7 +172,7 @@ with st.form("my_form"):
         col1, col2 = st.columns(2)
         with col1:
             st.write("Test population conversion:")
-            st.code(f"{(b_click_init / b_population):.2%}", None)
+            st.code(f"{(b_success_init / b_population):.2%}", None)
 
         # difference
         st.write("Difference:")
@@ -175,9 +180,11 @@ with st.form("my_form"):
         col1, col2 = st.columns(2)
         with col1:
 
-            st.code(f"{(b_click_init / b_population-a_click / a_population):.2%}", None)
+            st.code(
+                f"{(b_success_init / b_population-a_success / a_population):.2%}", None
+            )
         with col2:
-            if (b_click_init / b_population - a_click / a_population) >= 0:
+            if (b_success_init / b_population - a_success / a_population) >= 0:
                 st.markdown(
                     f"<span style='color:green'>Positive difference</span> ",
                     unsafe_allow_html=True,
@@ -190,11 +197,20 @@ with st.form("my_form"):
 
         # ----- p-value calculation -----
 
-        a_noclick = a_population - a_click
-        b_click = b_click_init
-        b_noclick_init = b_population - b_click_init
-        b_noclick = b_population - b_click
-        T = np.array([[a_click, a_noclick], [b_click, b_noclick_init]])
+        # number of users that did not convert in base population
+        a_nosuccess = a_population - a_success
+
+        # number of users that converted in test population, we use init becouse we will change b_success value in a minute
+        b_success = b_success_init
+
+        # number of users that not converted in test population
+        b_nosuccess_init = b_population - b_success_init
+        b_nosuccess = b_population - b_success
+
+        # array for p-value calulation
+        T = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess_init]])
+
+        # p-valu ecalculation
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
 
         if p_val <= 0.05:
@@ -204,7 +220,7 @@ with st.form("my_form"):
             sig_test = "P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablity reject the hyphotesis that conversions do not differ."
             color = "red"
 
-        K = np.array([[a_click, a_noclick], [b_click_init, b_noclick_init]])
+        K = np.array([[a_success, a_nosuccess], [b_success_init, b_nosuccess_init]])
         K = K[::-1]
 
         # ----- p-value -----
@@ -249,16 +265,16 @@ with st.form("my_form"):
         )
         for i in range(-50, 50):
 
-            a_noclick = a_population - a_click
+            a_nosuccess = a_population - a_success
 
-            b_click = b_click_init + round(i * (b_click_init / 1000))
-            b_noclick = b_population - b_click
+            b_success = b_success_init + round(i * (b_success_init / 1000))
+            b_nosuccess = b_population - b_success
 
-            T = np.array([[a_click, a_noclick], [b_click, b_noclick]])
+            T = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess]])
 
             p_values.append(scipy.stats.chi2_contingency(T, correction=False)[1])
-            differences.append((b_click / b_population - a_click / a_population))
-            obs_diff.append(i * (b_click_init / 1000))
+            differences.append((b_success / b_population - a_success / a_population))
+            obs_diff.append(i * (b_success_init / 1000))
 
         df = pd.DataFrame(
             {
@@ -293,21 +309,44 @@ with st.form("my_form"):
         df.Difference = df.Difference * 100
         st.line_chart(df[["Difference", "P-values"]].set_index("Difference"))
 
-        st.subheader("Detectable difference")
+        st.subheader("Minimum Detectable Effect")
 
-        st.write("Base population conversion: " + f"{(a_click / a_population):.2%}")
+        st.write("Base population conversion: " + f"{(a_success / a_population):.2%}")
 
         st.latex(
             r"""N = \frac{2(z_{\alpha/2}+z_{\beta} )^2 \mu(1-\mu)}{\mu^2 \cdot d^2}"""
         )
         st.write(
-            "Detectable difference based on sample size: "
-            + f"{(detect(a_click,a_population)[0]):.2%}"
+            "Minimum Detectable Effect based on sample size: "
+            + f"{(detect(a_success,a_population)[0]):.2%}"
             + " i.e. "
-            + f"**{(detect(a_click,a_population)[0]*detect(a_click,a_population)[1]*100):.2}**"
+            + f"**{(detect(a_success,a_population)[0]*detect(a_success,a_population)[1]*100):.2}**"
             + " percentage points"
         )
         st.caption("Significance level: 0.05, test power: 0.8")
+
+        st.write("**Minimum Detectable Effect behaviour**")
+
+        st.write("Increase of detactable effect with increase of sample size:")
+
+        for i in range(1, 11):
+            MDE_beh.append(
+                detect(a_success * (i / 10), a_population * (i / 10))[0]
+                * detect(a_success * (i / 10), a_population * (i / 10))[1]
+                * 100
+            )
+
+        st.dataframe(
+            pd.DataFrame(
+                {
+                    "Sample size": [i / 10 for i in range(1, 11)],
+                    "MDE in percentage points": MDE_beh,
+                }
+            )
+        )
+        st.caption(
+            "Assuming that conversion rate does not change - please note that in real live when sample size increases conversion rate changes over time"
+        )
 
         st.subheader("Comments")
         st.write(
@@ -323,23 +362,52 @@ with st.form("my_form"):
         </p>""",
             unsafe_allow_html=True,
         )
-        # test
 
-        # power 0.85
 
-        # mu = 0.05  # a_click / a_population
+# futre improvement:
 
-        # d = math.sqrt(
-        #     2
-        #     * (
-        #         ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
-        #         * mu
-        #         * (1 - mu)
-        #     )
-        #     / ((mu ** 2) * 547200)
-        # )
+# allow to look at the whole experiment and measure p-value!
 
-        # st.write("Detectable difference: " + f"{(d):.2%}")
+##################################################
+#
+#               p-value behaviour
+#
+##################################################
+
+# st.subheader("P-value behaviour")
+
+# p_val_test_array = np.array(
+#     [[a_success, a_nosuccess], [b_success, b_nosuccess_init]]
+# )
+
+# for i in range(1, 11):
+
+#     p_values_pop_dependent.append(
+#         scipy.stats.chi2_contingency(
+#             np.matrix.round(p_val_test_array * (i / 10), 0), correction=False
+#         )[1]
+#     )
+
+# st.write(p_values_pop_dependent)
+
+
+# test
+
+# power 0.85
+
+# mu = 0.05  # a_success / a_population
+
+# d = math.sqrt(
+#     2
+#     * (
+#         ((round(z_score(0.05), 2) + round(z_score((1 - 0.85) * 2), 2)) ** 2)
+#         * mu
+#         * (1 - mu)
+#     )
+#     / ((mu ** 2) * 547200)
+# )
+
+# st.write("Detectable difference: " + f"{(d):.2%}")
 
 
 # here is a code for calculating sample size
