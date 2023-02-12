@@ -266,10 +266,10 @@ with st.form("my_form"):
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
 
         if p_val <= 0.05:
-            sig_test = "P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probablity reject the hyphotesis that conversions do not differ."
+            sig_test = "P-value lower than 0.05. Result is statistically significant, therefore you can with 95% probability reject the hyphotesis that conversions do not differ."
             color = "green"
         else:
-            sig_test = "P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probablity reject the hyphotesis that conversions do not differ."
+            sig_test = "P-value greater than 0.05. Result is not statistically significant, therefore you cannot with 95% probability reject the hyphotesis that conversions do not differ."
             color = "red"
 
         # ----- p-value -----
