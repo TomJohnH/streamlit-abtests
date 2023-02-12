@@ -327,7 +327,7 @@ with st.form("my_form"):
 
         st.write("**Minimum Detectable Effect behaviour**")
 
-        st.write("Increase of detactable effect with increase of sample size:")
+        st.write("Sample size impact on MDE:")
 
         for i in range(1, 11):
             MDE_beh.append(
