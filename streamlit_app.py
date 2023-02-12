@@ -7,6 +7,21 @@ import math
 
 ##################################################
 #
+#                Visuals
+#
+##################################################
+
+
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+local_css("style.css")
+
+
+##################################################
+#
 #                Variables initiation
 #
 ##################################################
@@ -133,6 +148,7 @@ with st.form("my_form"):
     if submitted or st.experimental_get_query_params():
 
         st.write("Share results")
+
         st.code(
             f"https://chisquared.streamlit.app?a={a_success}&a_p={a_population}&b={b_success_init}&b_p={b_population}",
             None,
@@ -147,8 +163,17 @@ with st.form("my_form"):
         st.subheader("**Results**")
         # ----- conversion results -----
 
-        st.write(
-            "<span style='background-color:#ECF2F9;width: 100%;display:block;padding:0.5rem;border-radius: 10px;font-weight: bold;color:black;'>What is the baseline?</span>",
+        # st.write(
+        #     "<span style='background-color:#ECF2F9;width: 100%;display:block;padding:0.5rem;border-radius: 10px;font-weight: bold;color:black;'>What is the baseline?</span>",
+        #     unsafe_allow_html=True,
+        # )r
+
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">What is the baseline?</p>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
@@ -171,15 +196,19 @@ with st.form("my_form"):
             st.caption("Significance level: 0.05, test power: 0.8")
             with st.expander("What is MDE?"):
                 st.write(
-                    "The MDE is the smallest difference between the control group (A) and the treatment group (B) that you hope to detect as statistically significant."
+                    "The MDE is the smallest difference between the control group (A) and the test group (B) that you hope to detect as statistically significant."
                 )
                 st.write(
                     "If there is an effect you will detect MDE 80\% of the time with this sample."
                 )
         # test population conversion
 
-        st.write(
-            "<span style='background-color:#ECF2F9;width: 100%;display:block;padding:0.5rem;border-radius: 10px;font-weight: bold;color:black;'>How the test group performed?</span>",
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">How the test group performed?</p>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
 
@@ -188,10 +217,6 @@ with st.form("my_form"):
             st.write("**Test population conversion:**")
             st.code(f"{(b_success_init / b_population):.2%}", None)
 
-        # difference
-        # st.write("**Difference:**")
-
-        # col1, col2 = st.columns(2)
         with col2:
             st.write("**Difference:**")
             st.code(
@@ -199,18 +224,18 @@ with st.form("my_form"):
             )
             if (b_success_init / b_population - a_success / a_population) >= 0:
                 st.markdown(
-                    f"<span style='color:green'>Positive difference</span> ",
+                    f"<span style='color:green'>Positive difference. The test grup performed better than the baseline.</span> ",
                     unsafe_allow_html=True,
                 )
             else:
                 st.markdown(
-                    f"<span style='color:red'>Negative difference</span>  ",
+                    f"<span style='color:red'>Negative difference. The test group underperformed compared to the baseline.</span>  ",
                     unsafe_allow_html=True,
                 )
 
             with st.expander("Connection with MDE", expanded=False):
                 st.write(
-                    "In a situation where the test is statistically significant but the detected difference is below the Minimum Detectable Effect (MDE), it means that there is a significant difference between the control group and the treatment group, but the difference is not as big as you were hoping to detect. This can occur when the sample size is not large enough to detect the MDE, or when there is a lot of variability in the data."
+                    "In a situation where the test is statistically significant but the detected difference is below the Minimum Detectable Effect (MDE), it means that there is a significant difference between the control group and the test group, but the difference is not as big as you were hoping to detect. This can occur when the sample size is not large enough to detect the MDE, or when there is a lot of variability in the data."
                 )
                 st.write(
                     "Even though the detected difference is below the MDE, it may still be practically significant and worth considering. For example, if the goal of the test is to increase sales, **even a small increase in conversion rate could have a significant impact on revenue.**"
@@ -248,10 +273,15 @@ with st.form("my_form"):
             color = "red"
 
         # ----- p-value -----
-        st.write(
-            "<span style='background-color:#ECF2F9;width: 100%;display:block;padding:0.5rem;border-radius: 10px;font-weight: bold;color:black;'>Are results statistically significant?</span>",
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">Are results statistically significant?</p>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
+
         st.write("**P-value**")
 
         K = np.array([[a_success, a_nosuccess], [b_success_init, b_nosuccess_init]])
@@ -267,10 +297,10 @@ with st.form("my_form"):
             )
             with st.expander("Statistical significance?"):
                 st.write(
-                    """Statistical significance refers to the probability that an observed difference between two groups is due to chance. In an A/B test, the goal is to determine whether the difference in response between the control group and the treatment group is statistically significant. This is done by using a hypothesis test, such as a chi-squared test, which calculates a p-value that represents the probability of observing the data if the null hypothesis (i.e., no difference between the groups) is true."""
+                    """Statistical significance refers to the probability that an observed difference between two groups is due to chance. In an A/B test, the goal is to determine whether the difference in response between the control group and the test group is statistically significant. This is done by using a hypothesis test, such as a chi-squared test, which calculates a p-value that represents the probability of observing the data if the null hypothesis (i.e., no difference between the groups) is true."""
                 )
                 st.write(
-                    "A commonly used threshold for statistical significance is a p-value of 0.05, which means that there is a 5% chance of observing the data if the null hypothesis is true. If the p-value is less than 0.05, the difference is considered statistically significant, and the conclusion is that the treatment has had a significant effect on the response."
+                    "A commonly used threshold for statistical significance is a p-value of 0.05, which means that there is a 5\% chance of observing the data if the null hypothesis is true. If the p-value is less than 0.05, the difference is considered statistically significant, and the conclusion is that the tested change has had a significant effect on the response."
                 )
 
         # ----- Confidence interval -----
@@ -283,16 +313,48 @@ with st.form("my_form"):
         with col2:
             st.write(f"Confidence interval right:")
             st.code(f"{diffprop(K)[1][1]:0.4%}", None)
-        # st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
+            # st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
+            with st.expander("Confidence interval?"):
+                st.write(
+                    "A confidence interval for an A/B test provides a range of values that is likely to contain the true difference between the proportions of success in the control group and the test group. The chi-squared test is a hypothesis test that is used to determine whether there is a significant difference between the proportions of success in two groups."
+                )
+                st.write(
+                    "The interpretation of the confidence interval is that if the experiment were repeated many times, the true difference in proportions would fall within the calculated confidence interval a certain percentage of the time, typically 95% or 99%. This provides a range of values that is likely to contain the true difference, and provides information about the precision of the estimate."
+                )
         st.caption(
             "When confidence interval contains zero, test is statistically non-significant"
         )
 
         ##################################################
         #
+        #               Business explanation
+        #
+        ##################################################
+
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">Business explanation</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.write("Comming soon!")
+
+        ##################################################
+        #
         #               additional information
         #
         ##################################################
+
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">I want to dive deeper</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         st.subheader("Additional information")
         st.write(

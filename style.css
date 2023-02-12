@@ -1,0 +1,15 @@
+.section-divider {
+    background-color: #f9f9f9;
+    padding: 40px 0;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.section-divider-text {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0px;
+}
