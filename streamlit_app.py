@@ -365,7 +365,7 @@ with st.form("my_form"):
 
         st.write("**P-value simulation**")
         st.write(
-            "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on the confidence interval of the final results)"
+            "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on the confidence interval of the final results). Submit results again to see different simulation."
         )
         st.caption("We are simulating random experiment where we have the same ")
 
