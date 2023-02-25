@@ -365,7 +365,7 @@ with st.form("my_form"):
 
         st.write("**P-value simulation**")
         st.write(
-            "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on confidence interval of the final results)"
+            "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on the confidence interval of the final results)"
         )
         st.caption("We are simulating random experiment where we have the same ")
 
@@ -378,8 +378,10 @@ with st.form("my_form"):
 
         for i in range(1, 11):
             #    array for p-value calulation
-
-            random_factor = np.random.uniform(diffprop(K)[1][0], diffprop(K)[1][1])
+            ci_mid = (diffprop(K)[1][0] + diffprop(K)[1][1]) / 2
+            random_factor = np.random.uniform(
+                (ci_mid + diffprop(K)[1][0]) / 2, (ci_mid + diffprop(K)[1][1]) / 2
+            )
             sim_b_sucess_adjustment = round(a_population * (i / 10) * random_factor, 0)
             sim_b_nosucess_init = a_nosuccess - sim_b_sucess_adjustment
 
