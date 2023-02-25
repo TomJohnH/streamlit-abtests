@@ -1,9 +1,11 @@
 import numpy as np
+import math
+import pandas as pd
+from random import randint
 import scipy
 from scipy import stats
 import streamlit as st
-import pandas as pd
-import math
+
 
 ##################################################
 #
@@ -313,7 +315,7 @@ with st.form("my_form"):
         with col2:
             st.write(f"Confidence interval right:")
             st.code(f"{diffprop(K)[1][1]:0.4%}", None)
-            # st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
+            st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
             with st.expander("Confidence interval?"):
                 st.write(
                     "A confidence interval for an A/B test provides a range of values that is likely to contain the true difference between the proportions of success in the control group and the test group. The chi-squared test is a hypothesis test that is used to determine whether there is a significant difference between the proportions of success in two groups."
@@ -360,6 +362,63 @@ with st.form("my_form"):
         st.write(
             "Please exercise extreme caution before making any decisions using the tools listed below. Explanation why: https://www.evanmiller.org/how-not-to-run-an-ab-test.html"
         )
+
+        st.write("**P-value simulation**")
+        st.write(
+            "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on confidence interval of the final results)"
+        )
+        st.caption("We are simulating random experiment where we have the same ")
+
+        # this is a simulation of the experiment with random fluctations (fluctiations based on confidence interval of the final results)
+
+        sim_size = []
+        sim_delta = []
+        sim_p_value = []
+        sim_arrays = []
+
+        for i in range(1, 11):
+            #    array for p-value calulation
+
+            random_factor = np.random.uniform(diffprop(K)[1][0], diffprop(K)[1][1])
+            sim_b_sucess_adjustment = round(a_population * (i / 10) * random_factor, 0)
+            sim_b_nosucess_init = a_nosuccess - sim_b_sucess_adjustment
+
+            T = np.array(
+                [
+                    [round(a_success * (i / 10)), round(a_nosuccess * (i / 10))],
+                    [
+                        round(a_success * (i / 10) + sim_b_sucess_adjustment, 0),
+                        round(sim_b_nosucess_init * (i / 10), 0),
+                    ],
+                ]
+            )
+            sim_arrays.append(T)
+            T = T[::-1]
+            sim_size.append(i / 10)
+            sim_delta.append(diffprop(T)[0])
+            sim_p_value.append(scipy.stats.chi2_contingency(T, correction=False)[1])
+
+            sim_df = pd.DataFrame(
+                {
+                    "Size": sim_size,
+                    "Delta": sim_delta,
+                    "P-value": sim_p_value,
+                }
+            )
+            sim_df_styled = sim_df.style.format(
+                {
+                    "Size": "{:.0%}",
+                    "Delta": "{:.4%}",
+                    "P-value": "{:.4%}",
+                }
+            )
+        with st.expander("Show simulated arrays"):
+            st.write(sim_arrays)
+
+        st.dataframe(sim_df_styled)
+        st.write("**P-value simulation chart**")
+        st.line_chart(sim_df[["Size", "P-value"]].set_index("Size"))
+
         st.write(
             "**Check the value of difference when the chi-squared test would be significant.**"
         )
@@ -367,13 +426,15 @@ with st.form("my_form"):
 
             a_nosuccess = a_population - a_success
 
-            b_success = b_success_init + round(i * (b_success_init / 1000))
-            b_nosuccess = b_population - b_success
+            b_success_test = b_success_init + round(i * (b_success_init / 1000))
+            b_nosuccess_test = b_population - b_success
 
-            T = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess]])
+            T = np.array([[a_success, a_nosuccess], [b_success_test, b_nosuccess_test]])
 
             p_values.append(scipy.stats.chi2_contingency(T, correction=False)[1])
-            differences.append((b_success / b_population - a_success / a_population))
+            differences.append(
+                (b_success_test / b_population - a_success / a_population)
+            )
             obs_diff.append(i * (b_success_init / 1000))
 
         df = pd.DataFrame(
