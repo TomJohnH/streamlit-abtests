@@ -1,9 +1,8 @@
+import app_def
 import numpy as np
-import math
 import pandas as pd
 from random import randint
 import scipy
-from scipy import stats
 import streamlit as st
 
 
@@ -57,68 +56,6 @@ else:
 ##################################################
 
 
-def z_score(alpha):
-    # Calculate the z-score corresponding to the given significance level
-    z = stats.norm.ppf(1 - alpha / 2)
-
-    return z
-
-
-def detect(success, population):
-
-    # https://blog.allegro.tech/2019/08/ab-testing-calculating-required-sample-size.html
-
-    # power changed to 80%
-    # test power - chance to obtain true postive results - finding a difference when it really exists
-    # signifcance level - risk of obtaining false positive results - finding a non existisng difference
-
-    # base conversion rate
-    mu = success / population
-
-    # Minimum Detactable Effect
-    MDE = math.sqrt(
-        2
-        * (
-            (
-                (round(z_score(0.05), 2) + round(z_score((1 - 0.8) * 2), 2)) ** 2
-            )  # here we are using *2 due to definition of z_score
-            * mu
-            * (1 - mu)
-        )
-        / ((mu ** 2) * population)
-    )
-
-    return MDE, mu
-
-
-def diffprop(obs):
-    """
-    `obs` must be a 2x2 numpy array.
-
-    Returns:
-    delta
-        The difference in proportions
-    ci
-        The Wald 95% confidence interval for delta
-    corrected_ci
-        Yates continuity correction for the 95% confidence interval of delta.
-    """
-    n1, n2 = obs.sum(axis=1)
-    prop1 = obs[0, 0] / n1
-    prop2 = obs[1, 0] / n2
-    delta = prop1 - prop2
-
-    # Wald 95% confidence interval for delta
-    se = np.sqrt(prop1 * (1 - prop1) / n1 + prop2 * (1 - prop2) / n2)
-    ci = (delta - 1.96 * se, delta + 1.96 * se)
-
-    # Yates continuity correction for confidence interval of delta
-    correction = 0.5 * (1 / n1 + 1 / n2)
-    corrected_ci = (ci[0] - correction, ci[1] + correction)
-
-    return delta, ci, corrected_ci
-
-
 ##################################################
 #
 #            main application front-end
@@ -139,7 +76,7 @@ with st.form("my_form"):
         a_population = int(st.text_input("Base population # trials", value=a_p))
     col1, col2 = st.columns(2)
     with col1:
-        b_success_init = int(st.text_input("Test population # successes", value=b))
+        b_success = int(st.text_input("Test population # successes", value=b))
     with col2:
         b_population = int(st.text_input("Test population # trials", value=b_p))
 
@@ -152,7 +89,7 @@ with st.form("my_form"):
         st.write("Share results")
 
         st.code(
-            f"https://chisquared.streamlit.app?a={a_success}&a_p={a_population}&b={b_success_init}&b_p={b_population}",
+            f"https://chisquared.streamlit.app?a={a_success}&a_p={a_population}&b={b_success}&b_p={b_population}",
             None,
         )
 
@@ -190,9 +127,9 @@ with st.form("my_form"):
         with col2:
             st.write(
                 "Minimum Detectable Effect (MDE) based on sample size: "
-                + f"{(detect(a_success,a_population)[0]):.2%}"
+                + f"{(app_def.detect(a_success,a_population)[0]):.2%}"
                 + " i.e. "
-                + f"**{(detect(a_success,a_population)[0]*detect(a_success,a_population)[1]*100):.2}**"
+                + f"**{(app_def.detect(a_success,a_population)[0]*app_def.detect(a_success,a_population)[1]*100):.2}**"
                 + " percentage points. "
             )
             st.caption("Significance level: 0.05, test power: 0.8")
@@ -217,14 +154,12 @@ with st.form("my_form"):
         col1, col2 = st.columns(2)
         with col1:
             st.write("**Test population conversion:**")
-            st.code(f"{(b_success_init / b_population):.2%}", None)
+            st.code(f"{(b_success / b_population):.2%}", None)
 
         with col2:
             st.write("**Difference:**")
-            st.code(
-                f"{(b_success_init / b_population-a_success / a_population):.2%}", None
-            )
-            if (b_success_init / b_population - a_success / a_population) >= 0:
+            st.code(f"{(b_success / b_population-a_success / a_population):.2%}", None)
+            if (b_success / b_population - a_success / a_population) >= 0:
                 st.markdown(
                     f"<span style='color:green'>Positive difference. The test grup performed better than the baseline.</span> ",
                     unsafe_allow_html=True,
@@ -254,15 +189,10 @@ with st.form("my_form"):
         # number of users that did not convert in base population
         a_nosuccess = a_population - a_success
 
-        # number of users that converted in test population, we use init becouse we will change b_success value in a minute
-        b_success = b_success_init
-
-        # number of users that not converted in test population
-        b_nosuccess_init = b_population - b_success_init
         b_nosuccess = b_population - b_success
 
         # array for p-value calulation
-        T = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess_init]])
+        T = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess]])
 
         # p-valu ecalculation
         p_val = scipy.stats.chi2_contingency(T, correction=False)[1]
@@ -286,7 +216,7 @@ with st.form("my_form"):
 
         st.write("**P-value**")
 
-        K = np.array([[a_success, a_nosuccess], [b_success_init, b_nosuccess_init]])
+        K = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess]])
         K = K[::-1]
 
         col1, col2 = st.columns(2)
@@ -310,12 +240,12 @@ with st.form("my_form"):
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"Confidence interval left:")
-            st.code(f"{diffprop(K)[1][0]:0.4%}", None)
+            st.code(f"{app_def.diffprop(K)[1][0]:0.4%}", None)
         # col1, col2 = st.columns(2)
         with col2:
             st.write(f"Confidence interval right:")
-            st.code(f"{diffprop(K)[1][1]:0.4%}", None)
-            st.caption(f"Difference confirmation: {diffprop(K)[0]:0.4%}")
+            st.code(f"{app_def.diffprop(K)[1][1]:0.4%}", None)
+            st.caption(f"Difference confirmation: {app_def.diffprop(K)[0]:0.4%}")
             with st.expander("Confidence interval?"):
                 st.write(
                     "A confidence interval for an A/B test provides a range of values that is likely to contain the true difference between the proportions of success in the control group and the test group. The chi-squared test is a hypothesis test that is used to determine whether there is a significant difference between the proportions of success in two groups."
@@ -367,7 +297,7 @@ with st.form("my_form"):
         st.write(
             "This is a simulation of the experiment with random fluctations throught the time (fluctiations based on the confidence interval of the final results). Submit results again to see different simulation."
         )
-        st.caption("We are simulating random experiment where we have the same ")
+        # st.caption("We are simulating random experiment where we have the same ")
 
         # this is a simulation of the experiment with random fluctations (fluctiations based on confidence interval of the final results)
 
@@ -378,26 +308,27 @@ with st.form("my_form"):
 
         for i in range(1, 11):
             #    array for p-value calulation
-            ci_mid = (diffprop(K)[1][0] + diffprop(K)[1][1]) / 2
+            ci_mid = (app_def.diffprop(K)[1][0] + app_def.diffprop(K)[1][1]) / 2
             random_factor = np.random.uniform(
-                (ci_mid + diffprop(K)[1][0]) / 2, (ci_mid + diffprop(K)[1][1]) / 2
+                (ci_mid + app_def.diffprop(K)[1][0]) / 2,
+                (ci_mid + app_def.diffprop(K)[1][1]) / 2,
             )
             sim_b_sucess_adjustment = round(a_population * (i / 10) * random_factor, 0)
-            sim_b_nosucess_init = a_nosuccess - sim_b_sucess_adjustment
+            sim_b_nosucess = a_nosuccess - sim_b_sucess_adjustment
 
             T = np.array(
                 [
                     [round(a_success * (i / 10)), round(a_nosuccess * (i / 10))],
                     [
                         round(a_success * (i / 10) + sim_b_sucess_adjustment, 0),
-                        round(sim_b_nosucess_init * (i / 10), 0),
+                        round(sim_b_nosucess * (i / 10), 0),
                     ],
                 ]
             )
             sim_arrays.append(T)
             T = T[::-1]
             sim_size.append(i / 10)
-            sim_delta.append(diffprop(T)[0])
+            sim_delta.append(app_def.diffprop(T)[0])
             sim_p_value.append(scipy.stats.chi2_contingency(T, correction=False)[1])
 
             sim_df = pd.DataFrame(
@@ -426,9 +357,7 @@ with st.form("my_form"):
         )
         for i in range(-50, 50):
 
-            a_nosuccess = a_population - a_success
-
-            b_success_test = b_success_init + round(i * (b_success_init / 1000))
+            b_success_test = b_success + round(i * (b_success / 1000))
             b_nosuccess_test = b_population - b_success
 
             T = np.array([[a_success, a_nosuccess], [b_success_test, b_nosuccess_test]])
@@ -437,7 +366,7 @@ with st.form("my_form"):
             differences.append(
                 (b_success_test / b_population - a_success / a_population)
             )
-            obs_diff.append(i * (b_success_init / 1000))
+            obs_diff.append(i * (b_success / 1000))
 
         df = pd.DataFrame(
             {
@@ -481,9 +410,9 @@ with st.form("my_form"):
         )
         st.write(
             "Minimum Detectable Effect based on sample size: "
-            + f"{(detect(a_success,a_population)[0]):.2%}"
+            + f"{(app_def.detect(a_success,a_population)[0]):.2%}"
             + " i.e. "
-            + f"**{(detect(a_success,a_population)[0]*detect(a_success,a_population)[1]*100):.2}**"
+            + f"**{(app_def.detect(a_success,a_population)[0]*app_def.detect(a_success,a_population)[1]*100):.2}**"
             + " percentage points"
         )
         st.caption("Significance level: 0.05, test power: 0.8")
@@ -494,8 +423,8 @@ with st.form("my_form"):
 
         for i in range(1, 11):
             MDE_beh.append(
-                detect(a_success * (i / 10), a_population * (i / 10))[0]
-                * detect(a_success * (i / 10), a_population * (i / 10))[1]
+                app_def.detect(a_success * (i / 10), a_population * (i / 10))[0]
+                * app_def.detect(a_success * (i / 10), a_population * (i / 10))[1]
                 * 100
             )
 
