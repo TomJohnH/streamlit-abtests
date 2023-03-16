@@ -122,9 +122,16 @@ with st.form("my_form"):
         # base population conversion
 
         with col1:
-            st.code(f"{(a_success / a_population):.2%}", None)
+            base_pop_conv = a_success / a_population
+            st.code(f"{(base_pop_conv):.2%}", None)
 
         with col2:
+            MDE_prompt = (
+                "Minimum Detectable Effect (MDE) based on sample size: "
+                + f"{(app_def.detect(a_success,a_population)[0]*app_def.detect(a_success,a_population)[1]*100):.2}"
+                + " percentage points. "
+            )
+
             st.write(
                 "Minimum Detectable Effect (MDE) based on sample size: "
                 + f"{(app_def.detect(a_success,a_population)[0]):.2%}"
@@ -154,11 +161,13 @@ with st.form("my_form"):
         col1, col2 = st.columns(2)
         with col1:
             st.write("**Test population conversion:**")
-            st.code(f"{(b_success / b_population):.2%}", None)
+            test_pop_conv = b_success / b_population
+            st.code(f"{(test_pop_conv):.2%}", None)
 
         with col2:
             st.write("**Difference:**")
-            st.code(f"{(b_success / b_population-a_success / a_population):.2%}", None)
+            diff_pop_conv = b_success / b_population - a_success / a_population
+            st.code(f"{(diff_pop_conv):.2%}", None)
             if (b_success / b_population - a_success / a_population) >= 0:
                 st.markdown(
                     f"<span style='color:green'>Positive difference. The test grup performed better than the baseline.</span> ",
@@ -213,7 +222,6 @@ with st.form("my_form"):
             """,
             unsafe_allow_html=True,
         )
-
         st.write("**P-value**")
 
         K = np.array([[a_success, a_nosuccess], [b_success, b_nosuccess]])
@@ -256,6 +264,32 @@ with st.form("my_form"):
         st.caption(
             "When confidence interval contains zero, test is statistically non-significant"
         )
+
+        ##################################################
+        #
+        #               ChatGTP prompt
+        #
+        ##################################################
+
+        st.markdown(
+            """
+            <div class="section-divider">
+                <p class="section-divider-text">Chat gtp prompt</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        prompt = f"""
+        I made a chi-squared conversion test. Base population has conversion of {(base_pop_conv):.2%}, test population has a conversion of {(test_pop_conv):.2%}. 
+        The difference in conversion between populations is {(diff_pop_conv*100):.2} percentage points. 
+        {MDE_prompt}
+        P-value is {p_val:.4f}. 
+        Confidence interval of the result is [{app_def.diffprop(K)[1][0]:0.4%}, {app_def.diffprop(K)[1][1]:0.4%}]. Please make an insightfull business description of the results.
+
+        """
+
+        st.write(prompt)
 
         ##################################################
         #
