@@ -304,7 +304,7 @@ with st.form("my_form"):
 
         """
 
-        st.write(prompt)
+        st.write(prompt2)
 
         ##################################################
         #
