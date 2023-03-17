@@ -280,20 +280,21 @@ with st.form("my_form"):
             unsafe_allow_html=True,
         )
 
-        st.write("**Prompt 1**")
+        st.write("**Prompt 1 (general explanation)**")
 
         prompt = f"""
         I made a chi-squared conversion test. Base population has conversion of {(base_pop_conv):.2%}, test population has a conversion of {(test_pop_conv):.2%}. 
         The difference in conversion between populations is {(diff_pop_conv*100):.2} percentage points. 
         {MDE_prompt}
         P-value is {p_val:.4f}. 
-        Confidence interval of the result is [{app_def.diffprop(K)[1][0]:0.4%}, {app_def.diffprop(K)[1][1]:0.4%}]. Please make an insightfull business description of the results.
+        Confidence interval of the result is [{app_def.diffprop(K)[1][0]:0.4%}, {app_def.diffprop(K)[1][1]:0.4%}]. Please make an insightful business description of the results.
 
         """
 
-        st.write(prompt)
+        with st.expander("Prompt 1", expanded=True):
+            st.write(prompt)
 
-        st.write("**Prompt 2**")
+        st.write("**Prompt 2 (mail to exec)**")
 
         prompt2 = f"""
         You are a product manager with a statistical background. You made a chi-squared conversion test. Base population has conversion of {(base_pop_conv):.2%}, test population has a conversion of {(test_pop_conv):.2%}. 
@@ -303,8 +304,18 @@ with st.form("my_form"):
         Confidence interval of the result is [{app_def.diffprop(K)[1][0]:0.4%}, {app_def.diffprop(K)[1][1]:0.4%}]. Please make an insightfull business description of the results, take into account p-value of the test. Write a report from the test to the exec team.
 
         """
+        with st.expander("Prompt 2", expanded=False):
+            st.write(prompt2)
 
-        st.write(prompt2)
+        st.write("**Prompt 3 (simple explanation)**")
+        prompt3 = f"""Someone made a chi-squared conversion test. Base population has conversion of {(base_pop_conv):.2%}, test population has a conversion of {(test_pop_conv):.2%}. 
+        The difference in conversion between populations is {(diff_pop_conv*100):.2} percentage points. 
+        {MDE_prompt}
+        P-value is {p_val:.4f}. 
+        Confidence interval of the result is [{app_def.diffprop(K)[1][0]:0.4%}, {app_def.diffprop(K)[1][1]:0.4%}]. <br>---<br> Explain results of the test like i'm high school student. 
+        """
+        with st.expander("Prompt 3", expanded=False):
+            st.write(prompt3, unsafe_allow_html=True)
 
         ##################################################
         #
