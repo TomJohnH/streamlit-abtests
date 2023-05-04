@@ -126,27 +126,18 @@ with st.form("my_form"):
             st.code(f"{(base_pop_conv):.2%}", None)
 
         with col2:
-            MDE_prompt = (
-                "Minimum Detectable Effect (MDE) based on sample size: "
-                + f"{(app_def.detect(a_success,a_population)[0]*app_def.detect(a_success,a_population)[1]*100):.2}"
-                + " percentage points. "
-            )
+            MDE_value = app_def.detect(a_success, a_population)[0]
+            MDE_percentage = (app_def.detect(a_success, a_population)[0] * app_def.detect(a_success, a_population)[1] * 100)
 
-            st.write(
-                "Minimum Detectable Effect (MDE) based on sample size: "
-                + f"{(app_def.detect(a_success,a_population)[0]):.2%}"
-                + " i.e. "
-                + f"**{(app_def.detect(a_success,a_population)[0]*app_def.detect(a_success,a_population)[1]*100):.2}**"
-                + " percentage points. "
-            )
+            MDE_prompt = f"Minimum Detectable Effect (MDE) based on sample size: {MDE_percentage:.2} percentage points."
+       
+            st.write(f"Minimum Detectable Effect (MDE) based on sample size: {MDE_value:.2%} i.e. **{MDE_percentage:.2}** percentage points.")
             st.caption("Significance level: 0.05, test power: 0.8")
+
             with st.expander("What is MDE?"):
-                st.write(
-                    "The MDE is the smallest difference between the control group (A) and the test group (B) that you hope to detect as statistically significant."
-                )
-                st.write(
-                    "If there is an effect you will detect MDE 80\% of the time with this sample."
-                )
+                st.write("The MDE is the smallest difference between the control group (A) and the test group (B) that you hope to detect as statistically significant.")
+                st.write("If there is an effect, you will detect MDE 80\% of the time with this sample.")
+        
         # test population conversion
 
         st.markdown(
