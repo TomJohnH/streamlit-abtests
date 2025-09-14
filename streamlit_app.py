@@ -38,11 +38,11 @@ p_values = []
 
 # ---- query params from url ----
 
-if st.experimental_get_query_params():
-    a = st.experimental_get_query_params()["a"][0]
-    a_p = st.experimental_get_query_params()["a_p"][0]
-    b = st.experimental_get_query_params()["b"][0]
-    b_p = st.experimental_get_query_params()["b_p"][0]
+if st.query_params():
+    a = st.get_query_params()["a"][0]
+    a_p = st.get_query_params()["a_p"][0]
+    b = st.get_query_params()["b"][0]
+    b_p = st.get_query_params()["b_p"][0]
 else:
     a = 1513
     a_p = 15646
@@ -84,7 +84,7 @@ with st.form("my_form"):
     submitted = st.form_submit_button("Submit")
 
     # after submit --->
-    if submitted or st.experimental_get_query_params():
+    if submitted or st.get_query_params():
 
         st.write("Share results")
 
