@@ -39,10 +39,10 @@ p_values = []
 # ---- query params from url ----
 
 if st.query_params:
-    a   = int(st.query_params.get("a",   [1513])[0])
-    a_p = int(st.query_params.get("a_p", [15646])[0])
-    b   = int(st.query_params.get("b",   [1553])[0])
-    b_p = int(st.query_params.get("b_p", [15130])[0])
+    a   = int(st.query_params["a"])
+    a_p = int(st.query_params["a_p"])
+    b   = int(st.query_params["b"])
+    b_p = int(st.query_params["b_p"])
 else:
     a, a_p, b, b_p = 1513, 15646, 1553, 15130
 
