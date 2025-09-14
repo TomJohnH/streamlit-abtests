@@ -81,7 +81,7 @@ with st.form("my_form"):
     submitted = st.form_submit_button("Submit")
 
     # after submit --->
-    if submitted or st.get_query_params():
+    if submitted or st.query_params:
 
         st.write("Share results")
 
