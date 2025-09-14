@@ -168,18 +168,27 @@ with st.form("my_form"):
                 )
 
             with st.expander("Connection with MDE", expanded=False):
+                st.write("**The MDE (Minimum Detectable Effect)** is the effect size your experiment was designed to detect.")
                 st.write(
-                    "In a situation where the test is statistically significant but the detected difference is below the Minimum Detectable Effect (MDE), it means that there is a significant difference between the control group and the test group, but the difference is not as big as you were hoping to detect. This can occur when the sample size is not large enough to detect the MDE, or when there is a lot of variability in the data."
+                    "Sometimes, your test shows a **statistically significant difference** that is smaller than the MDE. "
+                    "This means:"
+                )
+                st.write("- The difference between groups is real, not random noise.")
+                st.write("- But the effect is smaller than what your test was powered to reliably catch.")
+                st.write("- This can happen if the sample size is limited or the data is noisy.")
+                
+                st.write("**Why this matters**")
+                st.write(
+                    "Even if the difference is below the MDE, it might still be **practically important**. "
+                    "For example, a 0.59% increase in conversion may sound small, but if you run millions of sessions, "
+                    "this could translate into a big revenue lift."
                 )
                 st.write(
-                    "Even though the detected difference is below the MDE, it may still be practically significant and worth considering. For example, if the goal of the test is to increase sales, **even a small increase in conversion rate could have a significant impact on revenue.**"
+                    "You should weigh the **cost and time of running the test longer** against the potential business impact of the observed effect."
                 )
-                st.write(
-                    "In such a situation, it's important to consider the trade-off between the cost and time of conducting the test and the potential impact of the detected difference. You may also want to consider adjusting the MDE or increasing the sample size of the test to see if a larger difference can be detected."
-                )
-                st.write(
-                    "In general, it's a good idea to interpret the results of an A/B test in the context of the specific business problem you're trying to solve, and to consider both the statistical significance and practical importance of the results."
-                )
+                st.write("You could also:")
+                st.write("- Increase sample size to better detect smaller effects.")
+                st.write("- Reconsider your MDE if smaller gains are still valuable.")
 
         # ----- p-value calculation -----
 

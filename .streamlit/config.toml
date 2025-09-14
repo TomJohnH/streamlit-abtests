@@ -1,2 +1,17 @@
+# .streamlit/config.toml
+
 [theme]
-base="light"
+# Primary color (Used for buttons, links, accents - a professional dark blue)
+primaryColor="#1F4E79"
+
+# Background color (Clean white)
+backgroundColor="#FFFFFF"
+
+# Secondary background color (Used for sidebars, containers, and code blocks - light gray)
+secondaryBackgroundColor="#F0F2F6"
+
+# Text color (Dark for maximum readability)
+textColor="#262730"
+
+# Font choice
+font="sans serif"

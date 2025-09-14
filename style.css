@@ -1,15 +1,79 @@
+/* style.css */
+
+/* --- Custom width for the main content area --- */
+div.block-container {
+    max-width: 1000px;
+    /* Adjust this value to your desired width */
+    padding-left: 1rem;
+    /* Adjust padding as needed */
+    padding-right: 1rem;
+    /* Adjust padding as needed */
+}
+
+/* --- General Component Styling --- */
+
+/* Enhance the appearance of the main input form */
+div[data-testid="stForm"] {
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #D9D9D9;
+    /* Light border */
+    background-color: #FAFAFC;
+    /* Slightly different background for the form area */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    /* Soft shadow */
+    margin-bottom: 30px;
+}
+
+/* Style for h3 subheaders */
+h3 {
+    color: #262730 !important;
+    padding-top: 10px;
+    font-weight: 700;
+}
+
+/* Style for st.code blocks (where conversions and p-values are displayed) */
+.stCode {
+    border-radius: 8px;
+    border-left: 6px solid #1F4E79;
+    /* Accent border matching new primary color (dark blue) */
+    padding: 10px 10px 10px 15px;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+/* --- Section Divider Styling --- */
+
 .section-divider {
-    background-color: #f9f9f9;
-    padding: 40px 0;
+    display: flex;
+    align-items: center;
     text-align: center;
-    margin-bottom: 1rem;
+    margin: 30px 0 20px 0;
+    width: 100%;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #D9D9D9;
+    /* Light line */
+}
+
+.section-divider:not(:empty)::before {
+    margin-right: .5em;
+}
+
+.section-divider:not(:empty)::after {
+    margin-left: .5em;
 }
 
 .section-divider-text {
-    color: #333;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #1F4E79;
+    /* Match new primary color from config.toml (dark blue) */
+    padding: 0 10px;
+    white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 0px;
 }
